@@ -81,7 +81,7 @@ const APP_VERSION = (() => {
   try { return JSON.parse(fs.readFileSync(path.join(ROOT, 'package.json'), 'utf8')).version || '0.0.0'; }
   catch { return '0.0.0'; }
 })();
-const RELEASES_REPO = (process.env.FACESWAP_RELEASES_REPO || 'DmitriyKorotkov/faceswap-app').trim(); // "owner/repo"
+const RELEASES_REPO = (process.env.FACESWAP_RELEASES_REPO || 'RDSHATOP/faceswap-app').trim(); // "owner/repo"
 const COMFY_PORT = config.comfyPort;
 const COMFY_URL = (process.env.COMFY_URL || `http://127.0.0.1:${COMFY_PORT}`).replace(/\/+$/, '');
 const COMFY_PY = path.join(COMFY_DIR, 'python_embeded', 'python.exe');

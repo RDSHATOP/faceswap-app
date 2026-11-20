@@ -11,7 +11,7 @@ param(
   [switch]$SkipBuild,                                      # не пересобирать exe/установщик
   [string]$ComfySource = "Z:\faceswap-staging\portable",   # staging ComfyUI
   [string]$OutDir = "Z:\FaceSwap-dist",                    # куда класть артефакты
-  [string]$Repo = "DmitriyKorotkov/faceswap-app",                                      # owner/repo для -Publish
+  [string]$Repo = "RDSHATOP/faceswap-app",                                      # owner/repo для -Publish
   [switch]$Publish                                         # создать GitHub Release
 )
 
