@@ -1,0 +1,18 @@
+[package]
+name = "faceswap-app"
+version = "1.0.0"
+description = "FaceSwap — локальное приложение обмена лицами (ComfyUI + ReActor под капотом)"
+edition = "2021"
+license = "MIT"
+
+[[bin]]
+name = "FaceSwap"
+path = "src/main.rs"
+
+[build-dependencies]
+tauri-build = { version = "2", features = [] }
+
+[dependencies]
+tauri = { version = "2", features = [] }
+serde_json = "1"
+url = "2"

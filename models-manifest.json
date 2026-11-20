@@ -1,0 +1,18 @@
+{
+  "reactorNode": {
+    "zipUrl": "https://codeload.github.com/Gourieff/ComfyUI-ReActor/zip/refs/heads/main",
+    "targetDir": "ComfyUI\\custom_nodes\\ComfyUI-ReActor",
+    "innerDir": "ComfyUI-ReActor-main",
+    "marker": "ComfyUI\\custom_nodes\\ComfyUI-ReActor\\__init__.py",
+    "pipRequirements": true
+  },
+  "models": [
+    {
+      "name": "inswapper_128.onnx",
+      "url": "https://github.com/deepinsight/insightface/releases/download/v0.7/inswapper_128.onnx",
+      "dir": "ComfyUI\\models\\insightface",
+      "size": 554253681,
+      "sha256": "e4a3f08c753cb72d04e10aa0f7dbe3deebbf39567d4ead6dce08e98aa49e16af"
+    }
+  ]
+}

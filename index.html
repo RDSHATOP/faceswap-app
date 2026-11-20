@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>FaceSwap — локальный свап лиц через ComfyUI</title>
+<link rel="stylesheet" href="/styles.css">
+</head>
+<body>
+<div class="app">
+
+  <header class="topbar">
+    <div class="brand">
+      <svg class="brand-mark" width="26" height="26" viewBox="0 0 26 26" fill="none" aria-hidden="true">
+        <rect x="1.5" y="1.5" width="23" height="23" rx="6.5" stroke="currentColor" stroke-width="2"/>
+        <circle cx="9.5" cy="10.5" r="1.8" fill="currentColor"/>
+        <circle cx="16.5" cy="10.5" r="1.8" fill="currentColor"/>
+        <path d="M8.5 17c1.7 1.6 3.4 2.4 4.5 2.4s2.8-.8 4.5-2.4" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+      </svg>
+      <span class="brand-name">FaceSwap</span>
+    </div>
+    <div class="status" id="statusBar">
+      <span class="status-dot" id="statusDot"></span>
+      <span id="statusText">Проверяю ComfyUI…</span>
+    </div>
+  </header>
+
+  <div class="syscheck" id="syscheck" hidden>
+    <div class="warning-title">Проверка системы</div>
+    <ul class="check-list" id="checkList"></ul>
+    <div class="warning-text" id="checkHint"></div>
+  </div>
+
+  <div class="reactor-warning" id="reactorWarning" hidden>
+    <div class="warning-title">Нода ReActor не установлена в ComfyUI</div>
+    <div class="warning-text" id="reactorManual">
+      Без неё свап не запустится. Приложение может установить её само:
+      нода ReActor + модель inswapper_128.onnx (~530 МБ, однократно).
+    </div>
+    <button class="btn btn-secondary" id="installBtn" type="button">Установить автоматически</button>
+    <div class="setup-progress" id="setupProgress" hidden>
+      <div class="progress-bar"><div class="progress-fill" id="setupFill"></div></div>
+      <span class="setup-text" id="setupText"></span>
+    </div>
+    <button class="btn btn-secondary" id="restartBtn" type="button" hidden>Перезапустить ComfyUI</button>
+    <div class="warning-text" id="setupNote"></div>
+  </div>
+
+  <div class="comfy-offline" id="comfyOffline" hidden>
+    <div class="warning-title">ComfyUI не отвечает по <span id="comfyUrl">127.0.0.1:8188</span></div>
+    <div class="warning-text">Нажмите кнопку ниже — приложение поднимет собственный экземпляр ComfyUI автоматически.</div>
+    <button class="btn btn-secondary" id="startComfyBtn" type="button">Запустить ComfyUI</button>
+    <div class="warning-text" id="startComfyMsg"></div>
+  </div>
+
+  <main class="layout">
+    <section class="panel inputs-panel">
+      <h1 class="title">Перенос лица</h1>
+      <p class="subtitle">Два фото — одна кнопка. Обработка идёт локально на вашей видеокарте через ComfyUI.</p>
+
+      <div class="slots">
+        <div class="slot" id="slotTarget" tabindex="0" role="button" aria-label="Выбрать целевое фото">
+          <input type="file" id="fileTarget" accept="image/png,image/jpeg,image/webp" hidden>
+          <div class="slot-empty">
+            <svg width="34" height="34" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+              <rect x="3" y="4" width="18" height="16" rx="3" stroke="currentColor" stroke-width="1.6"/>
+              <circle cx="9" cy="10" r="1.8" fill="currentColor"/>
+              <path d="M4.5 18l4.5-4.5 3 3L16 12l3.5 3.5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+            <span class="slot-label">Целевое фото</span>
+            <span class="slot-hint">куда переносим лицо</span>
+          </div>
+          <div class="slot-filled" hidden>
+            <img alt="Целевое фото">
+            <button class="slot-remove" type="button" aria-label="Убрать фото">
+              <svg width="14" height="14" viewBox="0 0 14 14" aria-hidden="true"><path d="M2 2l10 10M12 2L2 12" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+            </button>
+          </div>
+        </div>
+
+        <div class="slot-arrow" aria-hidden="true">
+          <svg width="30" height="30" viewBox="0 0 24 24" fill="none">
+            <path d="M4 12h14m0 0l-5-5m5 5l-5 5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </div>
+
+        <div class="slot" id="slotDonor" tabindex="0" role="button" aria-label="Выбрать фото донора">
+          <input type="file" id="fileDonor" accept="image/png,image/jpeg,image/webp" hidden>
+          <div class="slot-empty">
+            <svg width="34" height="34" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+              <circle cx="12" cy="8.5" r="3.5" stroke="currentColor" stroke-width="1.6"/>
+              <path d="M5 19c1.2-3 3.8-4.5 7-4.5s5.8 1.5 7 4.5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
+            </svg>
+            <span class="slot-label">Фото донора</span>
+            <span class="slot-hint">чьё лицо переносим</span>
+          </div>
+          <div class="slot-filled" hidden>
+            <img alt="Фото донора">
+            <button class="slot-remove" type="button" aria-label="Убрать фото">
+              <svg width="14" height="14" viewBox="0 0 14 14" aria-hidden="true"><path d="M2 2l10 10M12 2L2 12" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <details class="advanced">
+        <summary>Дополнительно</summary>
+        <div class="advanced-body">
+          <label class="field">
+            <span>Индекс лица на целевом фото</span>
+            <input type="number" id="targetIndex" min="0" max="9" value="0">
+          </label>
+          <label class="field">
+            <span>Индекс лица донора</span>
+            <input type="number" id="donorIndex" min="0" max="9" value="0">
+          </label>
+          <p class="field-note">0 — первое найденное лицо (порядок: слева направо). Для фото с одним лицом менять не нужно.</p>
+        </div>
+      </details>
+
+      <button class="btn btn-primary" id="swapBtn" type="button" disabled>Сделать swap</button>
+      <div class="progress" id="progress" hidden>
+        <div class="spinner" aria-hidden="true"></div>
+        <span id="progressText">Работаю…</span>
+      </div>
+      <div class="error-box" id="errorBox" hidden></div>
+    </section>
+
+    <section class="panel result-panel">
+      <h2 class="panel-heading">Результат</h2>
+      <div class="result-empty" id="resultEmpty">
+        <span>Здесь появится готовое фото</span>
+      </div>
+      <div class="result-image" id="resultImage" hidden>
+        <img id="resultImg" alt="Результат свапа">
+        <div class="result-actions">
+          <a class="btn btn-secondary" id="downloadBtn" download>Скачать PNG</a>
+          <button class="btn btn-ghost" id="againBtn" type="button">Ещё раз</button>
+        </div>
+        <div class="result-meta" id="resultMeta"></div>
+      </div>
+
+      <h2 class="panel-heading history-heading">История</h2>
+      <div class="history" id="history">
+        <div class="history-empty">Пока пусто</div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <span>ComfyUI + ReActor · всё выполняется локально, фото не покидают этот компьютер</span>
+  </footer>
+</div>
+<script src="/app.js"></script>
+</body>
+</html>

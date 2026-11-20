@@ -1,0 +1,23 @@
+# Сборка
+node_modules/
+dist-web/
+dist-installer/
+src-tauri/target/
+src-tauri/gen/
+
+# Бинарники, скачиваемые при сборке
+sidecar/node.exe
+
+# Пользовательские данные / артефакты запуска
+results/
+uploads/
+comfy-user/
+data/
+*.log
+tmp-*
+obs-append.ps1
+test-result.png
+
+# Прочее
+.DS_Store
+Thumbs.db

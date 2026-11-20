@@ -1,0 +1,33 @@
+{
+  "$schema": "https://schema.tauri.app/config/2",
+  "productName": "FaceSwap",
+  "version": "1.0.0",
+  "identifier": "ru.zaloopa.faceswap",
+  "build": {
+    "frontendDist": "../dist-web",
+    "devUrl": "http://127.0.0.1:7100"
+  },
+  "app": {
+    "windows": [
+      {
+        "label": "main",
+        "title": "FaceSwap",
+        "width": 1100,
+        "height": 780,
+        "minWidth": 900,
+        "minHeight": 640,
+        "resizable": true,
+        "decorations": true,
+        "url": "http://127.0.0.1:7100"
+      }
+    ],
+    "security": {
+      "csp": null
+    }
+  },
+  "bundle": {
+    "active": false,
+    "targets": [],
+    "icon": ["icons/icon.ico"]
+  }
+}

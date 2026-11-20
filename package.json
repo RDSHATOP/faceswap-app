@@ -1,0 +1,14 @@
+{
+  "name": "faceswap-app",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Face Swap app: два фото, одна кнопка, ComfyUI + ReActor под капотом",
+  "scripts": {
+    "dev": "node server.js --host 127.0.0.1 --port 7100",
+    "start": "node server.js",
+    "build:web": "node scripts/build-web.js",
+    "build:app": "node scripts/build-web.js && cargo build --release --manifest-path src-tauri/Cargo.toml",
+    "build:installer": "node scripts/build-web.js && cargo build --release --manifest-path src-tauri/Cargo.toml && iscc installer/faceswap.iss",
+    "test": "python test-swap.py"
+  }
+}
