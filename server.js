@@ -75,6 +75,13 @@ function loadConfig() {
 
 const config = loadConfig();
 const COMFY_DIR = config.comfyDir;
+
+// Версия приложения (из package.json) и репозиторий релизов
+const APP_VERSION = (() => {
+  try { return JSON.parse(fs.readFileSync(path.join(ROOT, 'package.json'), 'utf8')).version || '0.0.0'; }
+  catch { return '0.0.0'; }
+})();
+const RELEASES_REPO = (process.env.FACESWAP_RELEASES_REPO || '').trim(); // "owner/repo"
 const COMFY_PORT = config.comfyPort;
 const COMFY_URL = (process.env.COMFY_URL || `http://127.0.0.1:${COMFY_PORT}`).replace(/\/+$/, '');
 const COMFY_PY = path.join(COMFY_DIR, 'python_embeded', 'python.exe');
@@ -582,6 +589,7 @@ const server = http.createServer(async (req, res) => {
       const version = await comfyOnline();
       const reactor = version ? await reactorInstalled() : false;
       sendJson(res, 200, {
+        appVersion: APP_VERSION,
         comfy: { online: !!version, version: typeof version === 'string' ? version : null, url: COMFY_URL },
         reactor,
         comfyDir: COMFY_DIR,
@@ -609,6 +617,45 @@ const server = http.createServer(async (req, res) => {
       // assets отключены — ни блокировок БД, ни конфликтов с чужим ComfyUI.
       startComfyProcess();
       sendJson(res, 200, { started: true, message: 'Запускаю ComfyUI… подождите ~30 секунд' });
+      return;
+    }
+
+    // API: проверка обновлений (GitHub Releases)
+    if (p === '/api/update/check' && req.method === 'GET') {
+      const result = { current: APP_VERSION, latest: null, updateAvailable: false, url: null, error: null };
+      if (RELEASES_REPO) {
+        try {
+          const ctrl = new AbortController();
+          const timer = setTimeout(() => ctrl.abort(), 10000);
+          const r = await fetch(`https://api.github.com/repos/${RELEASES_REPO}/releases/latest`, {
+            headers: { 'Accept': 'application/vnd.github+json', 'User-Agent': 'faceswap-app' },
+            signal: ctrl.signal,
+          });
+          clearTimeout(timer);
+          if (r.status === 200) {
+            const data = await r.json();
+            const latest = String(data.tag_name || '').replace(/^v/, '');
+            result.latest = latest || null;
+            result.url = data.html_url || null;
+            const parse = (v) => String(v || '').split('.').map((x) => parseInt(x, 10) || 0);
+            const cur = parse(APP_VERSION), lat = parse(latest);
+            for (let i = 0; i < Math.max(cur.length, lat.length); i++) {
+              const a = cur[i] || 0, b = lat[i] || 0;
+              if (b > a) { result.updateAvailable = true; break; }
+              if (b < a) break;
+            }
+          } else if (r.status === 404) {
+            result.error = 'релизы не найдены';
+          } else {
+            result.error = 'GitHub ответил ' + r.status;
+          }
+        } catch (e) {
+          result.error = 'нет связи с GitHub';
+        }
+      } else {
+        result.error = 'репозиторий релизов не настроен';
+      }
+      sendJson(res, 200, result);
       return;
     }
 

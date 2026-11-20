@@ -5,6 +5,10 @@
   const $ = (id) => document.getElementById(id);
 
   const els = {
+    appVersion: document.getElementById('appVersion'),
+    updateBanner: document.getElementById('updateBanner'),
+    updateVersion: document.getElementById('updateVersion'),
+    updateLink: document.getElementById('updateLink'),
     statusDot: $('statusDot'),
     statusText: $('statusText'),
     reactorWarning: $('reactorWarning'),
@@ -171,6 +175,11 @@
       state.reactor = !!s.reactor;
 
       els.comfyUrl.textContent = (s.comfy && s.comfy.url || '127.0.0.1:8199').replace(/^https?:\/\//, '');
+
+      if (s.appVersion && els.appVersion) {
+        els.appVersion.hidden = false;
+        els.appVersion.textContent = 'v' + s.appVersion;
+      }
 
       if (!state.comfyOnline) {
         els.statusDot.className = 'status-dot offline';
@@ -387,10 +396,24 @@
     } catch { /* история не критична */ }
   }
 
+  // ---------- Проверка обновлений ----------
+  async function checkUpdates() {
+    try {
+      const r = await fetch('/api/update/check');
+      const u = await r.json();
+      if (u.updateAvailable && u.url) {
+        els.updateBanner.hidden = false;
+        els.updateVersion.textContent = 'v' + (u.latest || '');
+        els.updateLink.href = u.url;
+      }
+    } catch { /* проверка обновлений не критична */ }
+  }
+
   // ---------- Старт ----------
   refreshStatus();
   loadHistory();
   loadSystemCheck();
+  checkUpdates();
   setInterval(refreshStatus, 8000);
   setInterval(loadSystemCheck, 60000);
 })();
