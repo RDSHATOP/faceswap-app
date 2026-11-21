@@ -106,7 +106,8 @@ if ($setupItem.Length -gt $MaxPart) {
 }
 
 # Inno disk spanning: данные (>4 ГБ) идут в .bin-томах рядом с Setup.exe
-$bins = @(Get-ChildItem "$OutDir\$SetupName-*.bin" -ErrorAction SilentlyContinue | Sort-Object Name | ForEach-Object { $_.FullName })
+$binBase = $SetupName -replace '\.exe$',''
+$bins = @(Get-ChildItem "$OutDir\$binBase-*.bin" -ErrorAction SilentlyContinue | Sort-Object Name | ForEach-Object { $_.FullName })
 if ($bins.Count -gt 0) {
   Write-Host "    томов установщика (Inno spanning): $($bins.Count)"
   $parts += $bins

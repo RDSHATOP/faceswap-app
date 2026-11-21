@@ -1,10 +1,10 @@
-; FaceSwap — установщик (Inno Setup 7)
-; Per-user установка в {localappdata}\Programs\FaceSwap — без прав администратора.
-; Компонент "comfyui" — весь portable ComfyUI (только для релизной сборки):
+﻿; FaceSwap вЂ” СѓСЃС‚Р°РЅРѕРІС‰РёРє (Inno Setup 7)
+; Per-user СѓСЃС‚Р°РЅРѕРІРєР° РІ {localappdata}\Programs\FaceSwap вЂ” Р±РµР· РїСЂР°РІ Р°РґРјРёРЅРёСЃС‚СЂР°С‚РѕСЂР°.
+; РљРѕРјРїРѕРЅРµРЅС‚ "comfyui" вЂ” РІРµСЃСЊ portable ComfyUI (С‚РѕР»СЊРєРѕ РґР»СЏ СЂРµР»РёР·РЅРѕР№ СЃР±РѕСЂРєРё):
 ;   iscc faceswap.iss /DCOMFYUI_SOURCE="Z:\Comfy\ComfyUI_windows_portable"
 
 #define MyAppName "FaceSwap"
-#define MyAppVersion "1.0.0"
+#define MyAppVersion "1.1.0"
 #define MyAppPublisher "Zaloopa"
 #define MyAppExe "FaceSwap.exe"
 
@@ -17,7 +17,7 @@ AppPublisher={#MyAppPublisher}
 DefaultDirName={localappdata}\Programs\FaceSwap
 DefaultGroupName=FaceSwap
 DisableProgramGroupPage=yes
-; Без UAC: ставится в профиль текущего пользователя
+; Р‘РµР· UAC: СЃС‚Р°РІРёС‚СЃСЏ РІ РїСЂРѕС„РёР»СЊ С‚РµРєСѓС‰РµРіРѕ РїРѕР»СЊР·РѕРІР°С‚РµР»СЏ
 PrivilegesRequired=lowest
 PrivilegesRequiredOverridesAllowed=dialog
 WizardStyle=modern
@@ -27,12 +27,12 @@ OutputDir={#OUTDIR}
 OutputDir=..\dist-installer
 #endif
 OutputBaseFilename=FaceSwap-Setup-{#MyAppVersion}
-; Модели Flux2 (~19 ГБ) делают установщик больше 4 ГБ — включаем spanning:
-; Setup.exe небольшой, данные идут в .bin-тома по ~2 ГБ (лимит GitHub Releases)
+; РњРѕРґРµР»Рё Flux2 (~19 Р“Р‘) РґРµР»Р°СЋС‚ СѓСЃС‚Р°РЅРѕРІС‰РёРє Р±РѕР»СЊС€Рµ 4 Р“Р‘ вЂ” РІРєР»СЋС‡Р°РµРј spanning:
+; Setup.exe РЅРµР±РѕР»СЊС€РѕР№, РґР°РЅРЅС‹Рµ РёРґСѓС‚ РІ .bin-С‚РѕРјР° РїРѕ ~2 Р“Р‘ (Р»РёРјРёС‚ GitHub Releases)
 DiskSpanning=yes
 DiskSliceSize=2000000000
 SlicesPerDisk=1
-; FASTBUILD — быстрое сжатие для тестовых сборок с большим компонентом comfyui
+; FASTBUILD вЂ” Р±С‹СЃС‚СЂРѕРµ СЃР¶Р°С‚РёРµ РґР»СЏ С‚РµСЃС‚РѕРІС‹С… СЃР±РѕСЂРѕРє СЃ Р±РѕР»СЊС€РёРј РєРѕРјРїРѕРЅРµРЅС‚РѕРј comfyui
 #ifdef FASTBUILD
 Compression=lzma2/fast
 #else
@@ -51,18 +51,18 @@ CloseApplications=yes
 Name: "russian"; MessagesFile: "compiler:Languages\Russian.isl"
 
 [Tasks]
-Name: "desktopicon"; Description: "Создать ярлык на рабочем столе"; GroupDescription: "Дополнительные задачи:"
+Name: "desktopicon"; Description: "РЎРѕР·РґР°С‚СЊ СЏСЂР»С‹Рє РЅР° СЂР°Р±РѕС‡РµРј СЃС‚РѕР»Рµ"; GroupDescription: "Р”РѕРїРѕР»РЅРёС‚РµР»СЊРЅС‹Рµ Р·Р°РґР°С‡Рё:"
 
 [Files]
-; Исполняемый файл оболочки (Tauri)
+; РСЃРїРѕР»РЅСЏРµРјС‹Р№ С„Р°Р№Р» РѕР±РѕР»РѕС‡РєРё (Tauri)
 Source: "..\src-tauri\target\release\FaceSwap.exe"; DestDir: "{app}"; Flags: ignoreversion
-; Node runtime — сайдкар сервера
+; Node runtime вЂ” СЃР°Р№РґРєР°СЂ СЃРµСЂРІРµСЂР°
 Source: "..\sidecar\node.exe"; DestDir: "{app}"; Flags: ignoreversion
-; Веб-интерфейс и сервер
+; Р’РµР±-РёРЅС‚РµСЂС„РµР№СЃ Рё СЃРµСЂРІРµСЂ
 Source: "..\dist-web\*"; DestDir: "{app}\resources"; Flags: ignoreversion recursesubdirs createallsubdirs
 Source: "..\server.js"; DestDir: "{app}\resources"; Flags: ignoreversion
-; ComfyUI portable (релизная сборка "из коробки") — без компонентного разделения,
-; всё ставится всегда (решение: ComfyUI зашит в установщик целиком)
+; ComfyUI portable (СЂРµР»РёР·РЅР°СЏ СЃР±РѕСЂРєР° "РёР· РєРѕСЂРѕР±РєРё") вЂ” Р±РµР· РєРѕРјРїРѕРЅРµРЅС‚РЅРѕРіРѕ СЂР°Р·РґРµР»РµРЅРёСЏ,
+; РІСЃС‘ СЃС‚Р°РІРёС‚СЃСЏ РІСЃРµРіРґР° (СЂРµС€РµРЅРёРµ: ComfyUI Р·Р°С€РёС‚ РІ СѓСЃС‚Р°РЅРѕРІС‰РёРє С†РµР»РёРєРѕРј)
 #ifdef COMFYUI_SOURCE
 Source: "{#COMFYUI_SOURCE}\*"; DestDir: "{app}\resources\comfyui"; Flags: ignoreversion recursesubdirs createallsubdirs
 #endif
@@ -72,7 +72,7 @@ Name: "{group}\{#MyAppName}"; Filename: "{app}\{#MyAppExe}"
 Name: "{autodesktop}\{#MyAppName}"; Filename: "{app}\{#MyAppExe}"; Tasks: desktopicon
 
 [Run]
-Filename: "{app}\{#MyAppExe}"; Description: "Запустить FaceSwap"; Flags: nowait postinstall skipifsilent
+Filename: "{app}\{#MyAppExe}"; Description: "Р—Р°РїСѓСЃС‚РёС‚СЊ FaceSwap"; Flags: nowait postinstall skipifsilent
 
 [UninstallDelete]
-; Пользовательские данные НЕ удаляем: результаты и загрузки остаются в %LOCALAPPDATA%\FaceSwap\data
+; РџРѕР»СЊР·РѕРІР°С‚РµР»СЊСЃРєРёРµ РґР°РЅРЅС‹Рµ РќР• СѓРґР°Р»СЏРµРј: СЂРµР·СѓР»СЊС‚Р°С‚С‹ Рё Р·Р°РіСЂСѓР·РєРё РѕСЃС‚Р°СЋС‚СЃСЏ РІ %LOCALAPPDATA%\FaceSwap\data
