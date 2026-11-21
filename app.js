@@ -149,7 +149,7 @@
         if (state.reactor || tries > 12) {
           clearInterval(t);
           els.restartBtn.disabled = false;
-          els.setupNote.textContent = state.reactor ? 'ReActor загружен — можно делать swap.' : 'ReActor всё ещё не виден, смотрите comfyui.log';
+          els.setupNote.textContent = state.comfyOnline ? 'ComfyUI загружен — можно делать swap.' : 'ComfyUI всё ещё не виден, смотрите comfyui.log';
         }
       }, 4000);
     } catch (err) {
@@ -189,15 +189,9 @@
       } else {
         els.comfyOffline.hidden = true;
         els.startComfyMsg.textContent = '';
-        if (state.reactor) {
-          els.statusDot.className = 'status-dot online';
-          els.statusText.textContent = 'ComfyUI ' + (s.comfy.version || '') + ' · ReActor готов';
-          els.reactorWarning.hidden = true;
-        } else {
-          els.statusDot.className = 'status-dot offline';
-          els.statusText.textContent = 'ComfyUI ' + (s.comfy.version || '') + ' · нет ReActor';
-          els.reactorWarning.hidden = false;
-        }
+        els.statusDot.className = 'status-dot online';
+        els.statusText.textContent = 'ComfyUI ' + (s.comfy.version || '') + ' · Flux2 готов';
+        els.reactorWarning.hidden = true;
       }
       updateSwapButton();
     } catch {
@@ -207,7 +201,7 @@
   }
 
   function updateSwapButton() {
-    els.swapBtn.disabled = state.busy || !state.target || !state.donor || !state.comfyOnline || !state.reactor;
+    els.swapBtn.disabled = state.busy || !state.target || !state.donor || !state.comfyOnline;
   }
 
   // ---------- Слоты загрузки ----------

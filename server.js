@@ -37,7 +37,7 @@ const ROOT = __dirname;
 const DATA_DIR = process.env.FACESWAP_DATA_DIR || ROOT;
 const RESULTS_DIR = path.join(DATA_DIR, 'results');
 const UPLOADS_DIR = path.join(DATA_DIR, 'uploads');
-const WORKFLOW_FILE = path.join(ROOT, 'workflow-face-swap.json');
+const WORKFLOW_FILE = path.join(ROOT, 'workflow-flux2-headswap.json');
 
 // ---------- Конфиг ----------
 // config.json рядом с сервером: { "comfyDir": "...", "comfyPort": 8199 }
@@ -195,16 +195,16 @@ async function uploadToComfy(buffer, filename) {
   return r.json.name;
 }
 
-async function queueWorkflow(targetName, donorName, targetIndex, donorIndex) {
+async function queueWorkflow(targetName, donorName) {
   const tpl = JSON.parse(fs.readFileSync(WORKFLOW_FILE, 'utf8'));
   const wf = JSON.parse(JSON.stringify(tpl));
+  const seed = Math.floor(Math.random() * 281474976710655); // 48 бит, как в ComfyUI
   for (const node of Object.values(wf)) {
     const inputs = node.inputs || {};
     for (const key of Object.keys(inputs)) {
       if (inputs[key] === '__TARGET_IMG__') inputs[key] = targetName;
       if (inputs[key] === '__DONOR_IMG__') inputs[key] = donorName;
-      if (inputs[key] === '__TARGET_INDEX__') inputs[key] = String(targetIndex);
-      if (inputs[key] === '__DONOR_INDEX__') inputs[key] = String(donorIndex);
+      if (inputs[key] === '__SEED__') inputs[key] = seed;
     }
   }
   const r = await comfyFetch('/prompt', {
@@ -551,6 +551,8 @@ async function systemCheck() {
   } catch { /* размер диска не критичен */ }
 
   const vramGb = gpu && gpu.vramMb ? Math.round(gpu.vramMb / 1024) : null;
+  const isFlux2 = fs.existsSync(path.join(COMFY_DIR, 'models', 'diffusion_models', 'flux-2-klein-9b-fp8.safetensors'));
+  const diskNeed = isFlux2 ? 45 : 15;
   const checks = [
     { id: 'os', ok: true, label: 'Операционная система', detail: 'Windows ' + os.release() },
     {
@@ -564,8 +566,8 @@ async function systemCheck() {
     },
     { id: 'ram', ok: totalRamGb >= 8, label: 'Оперативная память ≥ 8 ГБ', detail: totalRamGb + ' ГБ' },
     {
-      id: 'disk', ok: diskFreeGb === null || diskFreeGb >= 15,
-      label: 'Свободное место ≥ 15 ГБ (диск ' + (/^[A-Za-z]:/.test(COMFY_DIR) ? COMFY_DIR.slice(0, 2) : 'C:') + ')',
+      id: 'disk', ok: diskFreeGb === null || diskFreeGb >= diskNeed,
+      label: 'Свободное место ≥ ' + diskNeed + ' ГБ (диск ' + (/^[A-Za-z]:/.test(COMFY_DIR) ? COMFY_DIR.slice(0, 2) : 'C:') + ')',
       detail: diskFreeGb === null ? 'не удалось определить' : diskFreeGb + ' ГБ',
     },
   ];
@@ -724,8 +726,8 @@ const server = http.createServer(async (req, res) => {
       const targetName = await uploadToComfy(t.buffer, `faceswap_target_${stamp}.${t.ext}`);
       const donorName = await uploadToComfy(d.buffer, `faceswap_donor_${stamp}.${d.ext}`);
 
-      const promptId = await queueWorkflow(targetName, donorName, targetIndex, donorIndex);
-      const imageInfo = await waitResult(promptId);
+      const promptId = await queueWorkflow(targetName, donorName);
+      const imageInfo = await waitResult(promptId, 15 * 60 * 1000); // Flux2: загрузка моделей + 15 шагов
       const imgBuffer = await fetchImage(imageInfo);
 
       const outName = `faceswap_${new Date().toISOString().replace(/[:T]/g, '-').slice(0, 19)}_${promptId.slice(0, 8)}.png`;

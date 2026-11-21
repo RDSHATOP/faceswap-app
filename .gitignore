@@ -21,3 +21,9 @@ test-result.png
 # Прочее
 .DS_Store
 Thumbs.db
+
+# Локальные тестовые прогоны (могут содержать личные фото)
+test-user-*.jpg
+test-result-*.png
+test-swap-user.py
+user-workflow-api.json
