@@ -27,3 +27,5 @@ test-user-*.jpg
 test-result-*.png
 test-swap-user.py
 user-workflow-api.json
+user-workflow-*.json
+hist-now.json
