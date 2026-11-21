@@ -79,7 +79,11 @@ const COMFY_DIR = config.comfyDir;
 // Версия приложения (из package.json) и репозиторий релизов
 const APP_VERSION = (() => {
   try { return JSON.parse(fs.readFileSync(path.join(ROOT, 'package.json'), 'utf8')).version || '0.0.0'; }
-  catch { return '0.0.0'; }
+  catch {
+    // установленная копия: build-web.js кладёт version.json рядом с сервером
+    try { return JSON.parse(fs.readFileSync(path.join(ROOT, 'version.json'), 'utf8')).version || '0.0.0'; }
+    catch { return '0.0.0'; }
+  }
 })();
 const RELEASES_REPO = (process.env.FACESWAP_RELEASES_REPO || 'RDSHATOP/faceswap-app').trim(); // "owner/repo"
 const COMFY_PORT = config.comfyPort;
