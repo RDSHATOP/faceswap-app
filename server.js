@@ -244,9 +244,15 @@ async function waitResult(promptId, timeoutMs = 300000) {
     const r = await comfyFetch('/history/' + promptId);
     if (r.status === 200 && r.json && r.json[promptId]) {
       const outputs = r.json[promptId].outputs || {};
+      let anyImage = null;
       for (const out of Object.values(outputs)) {
-        if (out.images && out.images.length) return out.images[0];
+        if (out.images && out.images.length) {
+          // предпочитаем файлы SaveImage (type 'output'); превью нод (MaskPreview и т.п.) — temp
+          if (out.images[0].type === 'output') return out.images[0];
+          if (!anyImage) anyImage = out.images[0];
+        }
       }
+      if (anyImage) return anyImage;
       const status = r.json[promptId].status;
       if (status && status.status_str === 'error') {
         throw new Error('ComfyUI завершил задачу с ошибкой (см. comfyui.log)');

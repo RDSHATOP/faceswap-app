@@ -111,6 +111,39 @@
       "ver": "0.7.0"
     }
   },
+  "117": {
+    "inputs": {
+      "rgthree_comparer": {
+        "images": [
+          {
+            "name": "A",
+            "selected": true,
+            "url": "/api/view?filename=rgthree.compare._temp_qjkdk_00005_.png&type=temp&subfolder=&rand=0.1914295235758975"
+          },
+          {
+            "name": "B",
+            "selected": true,
+            "url": "/api/view?filename=rgthree.compare._temp_qjkdk_00006_.png&type=temp&subfolder=&rand=0.6923396782689833"
+          }
+        ]
+      },
+      "image_a": [
+        "149",
+        0
+      ],
+      "image_b": [
+        "104",
+        0
+      ]
+    },
+    "class_type": "Image Comparer (rgthree)",
+    "_meta": {
+      "title": "Image Comparer (rgthree)",
+      "cnr_id": "rgthree-comfy",
+      "aux_id": "rgthree/rgthree-comfy",
+      "ver": "1.0.2512112053"
+    }
+  },
   "118": {
     "inputs": {
       "conditioning": [
@@ -331,6 +364,49 @@
       "ver": "0.8.2"
     }
   },
+  "152": {
+    "inputs": {
+      "samples": [
+        "150",
+        0
+      ],
+      "mask": [
+        "153",
+        0
+      ]
+    },
+    "class_type": "SetLatentNoiseMask",
+    "_meta": {
+      "title": "Set Latent Noise Mask",
+      "cnr_id": "comfy-core",
+      "ver": "0.9.1"
+    }
+  },
+  "153": {
+    "inputs": {
+      "resize_type": "scale dimensions",
+      "resize_type.width": [
+        "148",
+        0
+      ],
+      "resize_type.height": [
+        "148",
+        1
+      ],
+      "resize_type.crop": "center",
+      "scale_method": "bicubic",
+      "input": [
+        "151",
+        1
+      ]
+    },
+    "class_type": "ResizeImageMaskNode",
+    "_meta": {
+      "title": "Resize Image/Mask",
+      "cnr_id": "comfy-core",
+      "ver": "0.9.1"
+    }
+  },
   "156": {
     "inputs": {
       "seed": "__SEED__",
@@ -369,6 +445,20 @@
       "ver": "1.4.10"
     }
   },
+  "160": {
+    "inputs": {
+      "mask": [
+        "153",
+        0
+      ]
+    },
+    "class_type": "MaskPreview",
+    "_meta": {
+      "title": "Preview Mask",
+      "cnr_id": "comfy-core",
+      "ver": "0.9.1"
+    }
+  },
   "161": {
     "inputs": {
       "lora_name": "bfs_head_v1_flux-klein_9b_step3500_rank128.safetensors",
@@ -388,6 +478,10 @@
   "162": {
     "inputs": {
       "switch": true,
+      "on_false": [
+        "152",
+        0
+      ],
       "on_true": [
         "163",
         0
