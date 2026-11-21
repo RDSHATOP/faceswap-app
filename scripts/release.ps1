@@ -34,6 +34,7 @@ if ($pkg.version -ne $Version) {
 }
 (Get-Content "$Root\src-tauri\Cargo.toml" -Raw) -replace '(?m)^version = "[^"]+"', "version = `"$Version`"" | Set-Content "$Root\src-tauri\Cargo.toml" -NoNewline
 (Get-Content "$Root\src-tauri\tauri.conf.json" -Raw) -replace '"version":\s*"[^"]+"', "`"version`": `"$Version`"" | Set-Content "$Root\src-tauri\tauri.conf.json" -NoNewline
+(Get-Content "$Root\installer\faceswap.iss" -Raw) -replace '#define MyAppVersion "[^"]+"', "#define MyAppVersion `"$Version`"" | Set-Content "$Root\installer\faceswap.iss" -NoNewline -Encoding UTF8
 
 # ---------- 2. Сборка ----------
 if (-not $SkipBuild) {
@@ -104,6 +105,13 @@ if ($setupItem.Length -gt $MaxPart) {
   $parts += $setup
 }
 
+# Inno disk spanning: данные (>4 ГБ) идут в .bin-томах рядом с Setup.exe
+$bins = @(Get-ChildItem "$OutDir\$SetupName-*.bin" -ErrorAction SilentlyContinue | Sort-Object Name | ForEach-Object { $_.FullName })
+if ($bins.Count -gt 0) {
+  Write-Host "    томов установщика (Inno spanning): $($bins.Count)"
+  $parts += $bins
+}
+
 # ---------- 4. Контрольные суммы ----------
 Write-Host "==> Считаю SHA-256"
 $lines = @()
@@ -131,7 +139,8 @@ if ($Publish) {
   if (-not $Repo) { Die "Для -Publish укажите -Repo owner/repo" }
   if (-not (Test-Path $GhPath)) { Die "Не найден gh: $GhPath" }
   Write-Host "==> Публикую релиз v$Version на github.com/$Repo"
-  $assets = $parts + "$OutDir\JOIN.cmd" + "$OutDir\SHA256SUMS.txt"
+  $assets = $parts + "$OutDir\SHA256SUMS.txt"
+  if (Test-Path "$OutDir\JOIN.cmd") { $assets += "$OutDir\JOIN.cmd" }
   & $GhPath release create "v$Version" --repo $Repo --title "FaceSwap $Version" --notes "FaceSwap $Version — установщик для Windows (x64)." $assets
   if ($LASTEXITCODE -ne 0) { Die "gh release create завершился с кодом $LASTEXITCODE" }
   Write-Host "==> Релиз опубликован: https://github.com/$Repo/releases/tag/v$Version"

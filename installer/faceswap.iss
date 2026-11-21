@@ -27,6 +27,11 @@ OutputDir={#OUTDIR}
 OutputDir=..\dist-installer
 #endif
 OutputBaseFilename=FaceSwap-Setup-{#MyAppVersion}
+; Модели Flux2 (~19 ГБ) делают установщик больше 4 ГБ — включаем spanning:
+; Setup.exe небольшой, данные идут в .bin-тома по ~2 ГБ (лимит GitHub Releases)
+DiskSpanning=yes
+DiskSliceSize=2000000000
+SlicesPerDisk=1
 ; FASTBUILD — быстрое сжатие для тестовых сборок с большим компонентом comfyui
 #ifdef FASTBUILD
 Compression=lzma2/fast
